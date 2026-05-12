@@ -186,7 +186,7 @@ update:
 		/* updating of the column pieces */
 		for (k = 0; k < last; k++) {
 			int j1 = col[k];
-			v[j1] += d[j1] - min;
+			v[j1] -= d[j1] - min;
 		}
 
 		/* augmentation */
