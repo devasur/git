@@ -1,0 +1,69 @@
+{
+  "files": {
+    "engineering/MASTER_INDEX.md": {
+      "hash": "sha256:1105b91c3558dd017875c8e9de1fb19c5e85b2260840e4ee20185257290a0748",
+      "generatedAt": "2026-06-07T19:13:01.202Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/architecture/INDEX.md": {
+      "hash": "sha256:88f2364fbc11001c86fd779b3fc5b45cee8e8262a4c4820f117e94af8ffd69ca",
+      "generatedAt": "2026-06-07T19:13:01.202Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/architecture/database.md": {
+      "hash": "sha256:0afeadae59633f53a9dbd3c3333de9d0e7d1cdc2cea7f45889e9f53de043523c",
+      "generatedAt": "2026-06-07T19:13:01.202Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/architecture/deployment.md": {
+      "hash": "sha256:807a8af6114b4cb4bdb5488c904493d84eccf0dd9a17d2769e5a6576475ae36e",
+      "generatedAt": "2026-06-07T19:13:01.202Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/architecture/entity-model.md": {
+      "hash": "sha256:95e14835cf3e853e05e91306fa7bdcb686457296bbe9fc3cc0fef19c28df248f",
+      "generatedAt": "2026-06-07T19:13:01.202Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/architecture/processes.md": {
+      "hash": "sha256:1d5ecce380dc06d7f396b1b48968fbb86882c16f542b605138b28fa36eff04a0",
+      "generatedAt": "2026-06-07T19:13:01.202Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/architecture/routing.md": {
+      "hash": "sha256:5f61a526115a2024e6903c0350761bb1c8a480cef2051aebce92c2f22912d2fe",
+      "generatedAt": "2026-06-07T19:13:01.203Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/architecture/stack-checklist.md": {
+      "hash": "sha256:dd5bb6f8a9e1253b3a164406c8b0141918f6b3fcfc2f6050efcf415ec3d3794e",
+      "generatedAt": "2026-06-07T19:13:01.203Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/architecture/stack.md": {
+      "hash": "sha256:139ffdcb4368eb85eafa7b5f3858d12f7901aac374da28fd51ca37d390e15040",
+      "generatedAt": "2026-06-07T19:13:01.203Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/bugs/GIT-BUG-003.md": {
+      "hash": "sha256:cc9856af0d07ac4211ad5a4f15592190641003b903186f91cc7657100d5abf0f",
+      "generatedAt": "2026-06-07T19:13:01.203Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/business-domain/INDEX.md": {
+      "hash": "sha256:8f7f914a690812cb4b05605d47bd08f7df5bf16734e29c8270a73a35bed8f0ce",
+      "generatedAt": "2026-06-07T19:13:01.203Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/business-domain/entity-model.md": {
+      "hash": "sha256:95e14835cf3e853e05e91306fa7bdcb686457296bbe9fc3cc0fef19c28df248f",
+      "generatedAt": "2026-06-07T19:13:01.203Z",
+      "generatedByVersion": "1"
+    },
+    "engineering/stack-checklist.md": {
+      "hash": "sha256:dd5bb6f8a9e1253b3a164406c8b0141918f6b3fcfc2f6050efcf415ec3d3794e",
+      "generatedAt": "2026-06-07T19:13:01.203Z",
+      "generatedByVersion": "1"
+    }
+  }
+}

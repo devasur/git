@@ -1,0 +1,9 @@
+{
+  "lastChecked": "2026-06-07T19:13:01.284Z",
+  "installedVersion": "1.4.4",
+  "latestVersion": "1.4.4",
+  "upToDate": true,
+  "distribution": "forge@forge",
+  "forgeRoot": "/home/boni/.nvm/versions/node/v24.3.0/lib/node_modules/@entelligentsia/forgecli/dist/forge-payload",
+  "forgeRef": "1.4.4"
+}

@@ -1,0 +1,14 @@
+{
+  "basePackVersion": "1.4.4",
+  "overlayToolVersion": "1.0.0",
+  "currentSnapshot": 0,
+  "snapshots": [
+    {
+      "index": 0,
+      "createdAt": "2026-06-07T19:13:00.960Z",
+      "source": "base-pack",
+      "enhancedElements": [],
+      "archivePath": null
+    }
+  ]
+}

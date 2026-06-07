@@ -1,0 +1,10 @@
+{
+  "project": {
+    "name": "git",
+    "prefix": "GIT"
+  },
+  "knowledgeBase": {
+    "path": "engineering",
+    "indexFile": "engineering/MASTER_INDEX.md"
+  }
+}

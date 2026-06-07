@@ -1,0 +1,48 @@
+{
+  "version": "1",
+  "project": {
+    "name": "git",
+    "prefix": "GIT"
+  },
+  "stack": {
+    "primary": [
+      "C",
+      "Shell"
+    ],
+    "test": "sharness / clar",
+    "build": "make",
+    "lint": "clang-format"
+  },
+  "commands": {
+    "test": "make test",
+    "build": "make",
+    "lint": "clang-format --dry-run"
+  },
+  "paths": {
+    "engineering": "engineering",
+    "store": ".forge/store",
+    "workflows": ".forge/workflows",
+    "commands": ".claude/commands/forge",
+    "templates": ".forge/templates",
+    "forgeRoot": "/home/boni/.nvm/versions/node/v24.3.0/lib/node_modules/@entelligentsia/forgecli/dist/forge-payload",
+    "forgeRef": "1.4.4",
+    "customCommands": "engineering/commands"
+  },
+  "mode": "full",
+  "installedSkills": [],
+  "calibrationBaseline": {
+    "lastCalibrated": "2026-06-07T19:12:58.950Z",
+    "version": "1.4.4",
+    "masterIndexHash": "1105b91c3558dd017875c8e9de1fb19c5e85b2260840e4ee20185257290a0748",
+    "sprintsCovered": []
+  },
+  "pipeline": {
+    "maxReviewIterations": 3
+  },
+  "sprint": {
+    "execution": {
+      "mode": "sequential",
+      "maxConcurrentAgents": 3
+    }
+  }
+}

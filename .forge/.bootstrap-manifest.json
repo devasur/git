@@ -1,0 +1,15 @@
+{
+  "bootstrappedAt": "2026-06-07T18:56:10.675Z",
+  "payloadVersion": "1.4.4",
+  "payloadIntegrityHash": "24f2635accf02f350bc773ba1db313232ab0c3729a2a8116fab1b1f9b985941b",
+  "steps": [
+    "scaffold",
+    "vendor-tools",
+    "vendor-hooks",
+    "vendor-schemas",
+    "vendor-commands",
+    "vendor-forge-root",
+    "vendor-claude-assets",
+    "install-workflows"
+  ]
+}

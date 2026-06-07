@@ -261,3 +261,6 @@ Release/
 /contrib/buildsystems/out
 /contrib/libgit-rs/target
 /contrib/libgit-sys/target
+
+# Forge — transient agent event logs (one file per phase, do not commit)
+.forge/store/events/

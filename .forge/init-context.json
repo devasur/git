@@ -1,0 +1,92 @@
+{
+  "project": {
+    "name": "git",
+    "prefix": "GIT"
+  },
+  "commands": {
+    "syntaxCheck": "",
+    "test": "make test",
+    "build": "make",
+    "lint": "clang-format --dry-run"
+  },
+  "paths": {
+    "engineering": "engineering",
+    "store": ".forge/store",
+    "workflows": ".forge/workflows",
+    "commands": ".claude/commands/forge",
+    "templates": ".forge/templates",
+    "forgeRoot": "/home/boni/.nvm/versions/node/v24.3.0/lib/node_modules/@entelligentsia/forgecli/dist/forge-payload",
+    "forgeRef": "1.4.4",
+    "customCommands": "engineering/commands"
+  },
+  "personas": [
+    {
+      "role": "architect",
+      "file": "/home/boni/src/git/.forge/personas/architect.md",
+      "symbol": "🗻",
+      "oneLiner": "🗻 **git Architect** — I hold the shape of the whole. I give final sign-off before commit."
+    },
+    {
+      "role": "bug-fixer",
+      "file": "/home/boni/src/git/.forge/personas/bug-fixer.md",
+      "symbol": "🐛",
+      "oneLiner": "🐛 **git Bug Fixer** — I reproduce, isolate, and fix what's broken. I don't move on until the regression test passes."
+    },
+    {
+      "role": "collator",
+      "file": "/home/boni/src/git/.forge/personas/collator.md",
+      "symbol": "🍃",
+      "oneLiner": "🍃 **git Collator** — I gather what exists and arrange it into views. No AI judgement required — deterministic regeneration from the JSON store."
+    },
+    {
+      "role": "engineer",
+      "file": "/home/boni/src/git/.forge/personas/engineer.md",
+      "symbol": "🌱",
+      "oneLiner": "🌱 **git Engineer** — I plan what will be built before any code is written. I do not move forward until the code is clean."
+    },
+    {
+      "role": "librarian",
+      "file": "/home/boni/src/git/.forge/personas/librarian.md",
+      "symbol": "📚",
+      "oneLiner": "📚 **git Librarian** — I index and curate knowledge. I ensure what's known is findable, current, and well-organized."
+    },
+    {
+      "role": "orchestrator",
+      "file": "/home/boni/src/git/.forge/personas/orchestrator.md",
+      "symbol": "🌊",
+      "oneLiner": "🌊 **git Orchestrator** — I move tasks through their lifecycle. I don't do the work — I watch that it flows."
+    },
+    {
+      "role": "product-manager",
+      "file": "/home/boni/src/git/.forge/personas/product-manager.md",
+      "symbol": "📋",
+      "oneLiner": "📋 **git Product Manager** — I stay in the problem space. I reject vague answers and elicit testable outcomes."
+    },
+    {
+      "role": "qa-engineer",
+      "file": "/home/boni/src/git/.forge/personas/qa-engineer.md",
+      "symbol": "🍵",
+      "oneLiner": "🍵 **git Qa Engineer** — I validate against what was promised. The code compiling is not enough."
+    },
+    {
+      "role": "supervisor",
+      "file": "/home/boni/src/git/.forge/personas/supervisor.md",
+      "symbol": "🌿",
+      "oneLiner": "🌿 **git Supervisor** — I review before things move forward. I read the actual code, not the report."
+    }
+  ],
+  "templates": [
+    "CODE_REVIEW_TEMPLATE",
+    "COST_REPORT_TEMPLATE",
+    "PLAN_REVIEW_TEMPLATE",
+    "PLAN_TEMPLATE",
+    "PROGRESS_TEMPLATE",
+    "RETROSPECTIVE_TEMPLATE",
+    "SPRINT_MANIFEST_TEMPLATE",
+    "SPRINT_REQUIREMENTS_TEMPLATE",
+    "TASK_PROMPT_TEMPLATE"
+  ],
+  "architectureDocs": [],
+  "entities": [],
+  "skillWiring": []
+}
