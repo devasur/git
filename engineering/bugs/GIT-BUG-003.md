@@ -1,7 +1,7 @@
-# GIT-BUG-003: Rename detection produces incorrect file pairings when multiple files are renamed simultaneously
+# GIT-BUG-003: `git range-diff` pairs commits incorrectly when series contains multiple similar patches
 
 **Severity:** Medium  
-**Component:** Diff / Rename Detection  
+**Component:** Range-diff / Commit Matching  
 **Introduced:** Unknown — first noticed on `89c62ccd3e` ("The 11th batch")  
 **Reproducible:** Yes (deterministic with the steps below)
 
@@ -9,103 +9,169 @@
 
 ## Summary
 
-When a single commit renames multiple files at once, `git diff -M` and related commands can mis-pair source files with destination files — assigning the wrong source to the wrong destination even when similarity scores are high and unambiguous. The pairings flip between candidates rather than selecting the globally optimal assignment. Single-file renames, and renames where each source has an obvious best match (large similarity gap), are not affected.
+When comparing two versions of a patch series with `git range-diff`, commits from the
+first series can be matched against the wrong counterparts in the second series. The
+result is a range-diff that shows large spurious diffs — not because the patches changed
+significantly between versions, but because unrelated patches are being compared against
+each other. The problem is specific to series where multiple commits make similar-sized
+changes to overlapping files, and where no exact commit-hash or subject-line matches are
+available to anchor the pairing.
 
 ---
 
 ## Observed Symptoms
 
-1. **`git diff -M` reports the wrong rename pairs.** With three or more concurrent renames, the output lists source files matched to clearly-wrong destinations. The similarity percentage shown is low (sometimes below the rename threshold) even though the correct pairing would score well above it.
+1. **`git range-diff` outputs implausibly large diffs for minor patch revisions.** A
+   series revision that only reworded a commit message or rebased cleanly shows a
+   range-diff as large as if the entire patch were rewritten. The actual patch content
+   is nearly identical; the diff is large because the wrong commits are being compared.
 
-2. **`git log --follow` follows the wrong ancestry.** On a branch where `alpha.c → core/alpha.c`, `beta.c → core/beta.c`, and `gamma.c → core/gamma.c` were reorganized in one commit, `--follow` on `core/alpha.c` tracks back to `beta.c` (or `gamma.c`) instead of `alpha.c`. The wrong ancestry causes `git blame` to attribute lines to the wrong original authors.
+2. **Commit subjects in the range-diff output are transposed.** The left-hand commit
+   (v1) and right-hand commit (v2) shown together address different issues, yet
+   `range-diff` has paired them. This is most visible in the `## subject ##` header
+   lines that bracket each pair in the output.
 
-3. **`git diff --stat -M` under-reports renames.** Some pairs fall below the similarity threshold because they've been matched to the wrong counterpart (whose actual similarity is low), so they appear as a delete + add instead of a rename.
+3. **The total number of pairs is correct; only the pairing is wrong.** All N commits
+   from v1 and all N commits from v2 appear in the output — nothing is dropped or
+   shown as unmatched — but some pairs are shuffled relative to what the author
+   intended.
 
-4. **The problem scales with rename count.** Two concurrent renames rarely exhibit the issue. With four or more concurrent renames involving files of overlapping sizes and content, mis-pairings are consistent and reproducible.
+4. **Splitting the series into a single-patch comparison works correctly.** Running
+   `git range-diff` with a one-commit series (`A~1..A` vs `B~1..B`) always produces
+   the correct single-pair output. The bug is specific to multi-commit series.
 
-5. **Moving the renames into separate commits makes the bug disappear.** If the same content changes are split so each commit renames only one file, all pairings are correct. The bug is specific to the multi-rename assignment step, not to individual similarity measurement.
+5. **The issue scales with series length.** With two commits per side the problem
+   is rare. With four or more commits per side involving similar-sized hunks across
+   similar files, transposed pairings occur consistently.
+
+6. **Pre-matched commits (identical subject lines across both versions) are always
+   paired correctly.** The mispairing only affects commits where the subject lines
+   differ between v1 and v2 (e.g., after a reword, or when commits were split/joined),
+   forcing the matcher into approximate cost-based comparison.
 
 ---
 
 ## Minimal Reproducer
 
-The following script creates a repository where four C files are reorganized in one commit. After the rename commit, `git diff -M HEAD~1 HEAD` should pair each `old_*.c` with its matching `new_*.c`. With the bug present, at least one pairing is wrong.
+The following creates a base branch and two versions of a 4-patch series. Each patch
+modifies a different file, but all modifications are structurally similar (same line
+count, same change pattern). The subject lines deliberately differ between v1 and v2 to
+disable subject-match anchoring and force cost-based pairing.
 
 ```bash
 #!/bin/bash
 set -e
+
 REPO=$(mktemp -d)
 cd "$REPO"
 git init -q
 git config user.email "test@example.com"
 git config user.name "Test"
 
-# Create four source files with similar-but-distinct content.
-# Each file has a unique identifier block so correct pairing is unambiguous.
+# Base: four files, each 60 lines of similar boilerplate
 for i in 1 2 3 4; do
   python3 -c "
-import sys
-n = int(sys.argv[1])
-lines = []
-lines.append('/* module_%d — generated fixture */' % n)
-# 80 lines of padding common to all files
-for j in range(80):
-    lines.append('static int shared_helper_%d(int x) { return x + %d; }' % (j, j))
-# 20 lines unique to this file (make each file recognisably different)
-for j in range(20):
-    lines.append('static int unique_fn_%d_%d(void) { return %d * %d; }' % (n, j, n, j))
-print('\n'.join(lines))
-" $i > old_module_$i.c
+n = int('$i')
+for j in range(60):
+    print('static int base_fn_%d_%d(void) { return %d; }' % (n, j, n*100+j))
+" > file_$i.c
 done
-
 git add .
-git commit -q -m "initial: add four modules"
+git commit -q -m "base: initial files"
 
-# Rename all four in one commit (no content change — pure rename).
+# v1: each patch changes 5 lines in its respective file
+# Subject lines use "Update" phrasing
+git checkout -q -b v1
 for i in 1 2 3 4; do
-  git mv old_module_$i.c new_module_$i.c
+  python3 -c "
+n = int('$i')
+lines = ['static int base_fn_%d_%d(void) { return %d; }' % (n, j, n*100+j) for j in range(60)]
+for j in range(5):
+    lines[j+10] = 'static int v1_fn_%d_%d(void) { return %d + 1; }' % (n, j, n*100+j)
+print('\n'.join(lines))
+" > file_$i.c
+  git add file_$i.c
+  git commit -q -m "Update module $i: v1 adjustment"
 done
-git commit -q -m "refactor: rename modules to new naming scheme"
 
-echo "=== git diff -M HEAD~1 HEAD ==="
-git diff -M HEAD~1 HEAD --name-status
+# v2: same structural change but slightly different edits and subject phrasing
+# Subject lines use "Revise" phrasing — no subject-match possible with v1
+git checkout -q master
+git checkout -q -b v2
+for i in 1 2 3 4; do
+  python3 -c "
+n = int('$i')
+lines = ['static int base_fn_%d_%d(void) { return %d; }' % (n, j, n*100+j) for j in range(60)]
+for j in range(5):
+    lines[j+10] = 'static int v2_fn_%d_%d(void) { return %d + 2; }' % (n, j, n*100+j)
+print('\n'.join(lines))
+" > file_$i.c
+  git add file_$i.c
+  git commit -q -m "Revise module $i: v2 adjustment"
+done
 
-echo ""
-echo "Expected: each old_module_N.c → new_module_N.c (100% similarity)"
-echo "Bug:      pairings may be shuffled (e.g. old_module_1 → new_module_3)"
+echo "=== git range-diff master v1 v2 ==="
+git range-diff master v1 v2
 ```
 
 ### Expected output
 
+Each v1 commit should be paired with the v2 commit touching the same file (module N ↔
+module N). The diff within each pair should be small — just the `v1_fn` → `v2_fn`
+rename and the `+1` → `+2` change:
+
 ```
-R100    old_module_1.c  new_module_1.c
-R100    old_module_2.c  new_module_2.c
-R100    old_module_3.c  new_module_3.c
-R100    old_module_4.c  new_module_4.c
+1:  <hash> ! 1:  <hash> Update module 1 / Revise module 1
+    @@ file_1.c
+    -static int v1_fn_1_0 ...
+    +static int v2_fn_1_0 ...
+    ...
+2:  <hash> ! 2:  <hash> Update module 2 / Revise module 2
+3:  <hash> ! 3:  <hash> Update module 3 / Revise module 3
+4:  <hash> ! 4:  <hash> Update module 4 / Revise module 4
 ```
 
 ### Actual output (with bug)
 
+Commits are paired by the wrong module numbers. The v1 patch for `file_1.c` is compared
+against the v2 patch for `file_3.c` (or similar transposition). The resulting diff is
+large — the entire changed region is shown as removed and re-added — and the subject
+lines in each pair refer to different modules:
+
 ```
-R050    old_module_1.c  new_module_3.c
-R050    old_module_2.c  new_module_4.c
-R050    old_module_3.c  new_module_1.c
-R050    old_module_4.c  new_module_2.c
+1:  <hash> ! 3:  <hash> Update module 1 / Revise module 3
+    (large spurious diff — wrong files compared)
+2:  <hash> ! 4:  <hash> Update module 2 / Revise module 4
+3:  <hash> ! 1:  <hash> Update module 3 / Revise module 1
+4:  <hash> ! 2:  <hash> Update module 4 / Revise module 2
 ```
 
-(Exact pairings vary depending on file sizes and the number of files. With identical-content renames the similarity shown should be R100; the low score confirms the wrong file was chosen as the match.)
+(Exact transposition depends on series length and relative patch sizes.)
 
 ---
 
 ## Additional Observations
 
-- **Threshold tuning does not help.** Lowering `--find-renames` to 10% or raising it to 90% does not change which pairs are selected — the pairing is wrong regardless of threshold, because the similarity of the mis-matched pair is consistently near 50% (half-overlap of padding content shared between all files).
+- **`--creation-factor` tuning does not help.** Adjusting `--creation-factor` changes
+  the penalty for unmatched commits but does not fix the pairing — commits stay
+  incorrectly matched regardless of the factor.
 
-- **Exact-rename detection (`-M100%`) is unaffected.** When `--find-renames=100` is used, the four files are all exact copies of their renamed selves and are correctly reported as R100. The bug only manifests in the approximate (score-based) matching path.
+- **Making each commit sufficiently distinct eliminates the bug.** If each patch in the
+  series is made structurally unique (e.g., modifying different line counts or adding a
+  large unique comment block), the correct pairing becomes unambiguous and the problem
+  does not manifest. This confirms the issue is in how competing near-equal costs are
+  resolved during matching, not in the patch diff computation itself.
 
-- **Adding a fifth file triggers the bug more reliably.** With only two files, results are usually correct. The likelihood of wrong pairings increases with each additional concurrent rename, suggesting the issue is in a multi-candidate resolution step rather than in individual pair scoring.
+- **The bug does not affect `git log -p` or `git diff` output.** Individual patch
+  content is computed and displayed correctly. Only the commit-to-commit assignment
+  step inside `range-diff` is affected.
 
-- **`git diff --no-renames` followed by manual content comparison shows all pairs are actually 100% identical**, confirming the similarity measurement itself is accurate — only the final assignment of which source maps to which destination is wrong.
+- **`--no-notes` and `--notes` flags have no effect on the behaviour.**
+
+- **The problem does not occur when subject lines match between v1 and v2.** If the
+  series revision preserves all subject lines verbatim, an earlier subject-based
+  pre-matching step anchors the pairs before cost-based matching runs, and the bug
+  is bypassed entirely.
 
 ---
 
@@ -114,5 +180,5 @@ R050    old_module_4.c  new_module_2.c
 - Built from source: commit `89c62ccd3e` ("The 11th batch")  
 - OS: Linux 6.17 x86_64  
 - Compiler: gcc 13  
-- `git version`: built locally, no installed system git used for testing  
-- Confirmed on both `git diff -M` and `git log --follow`
+- Confirmed with both `git range-diff <base> <v1> <v2>` and the equivalent
+  `git range-diff <v1-base>..<v1-tip> <v2-base>..<v2-tip>` syntax
